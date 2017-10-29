@@ -1,6 +1,7 @@
 struct CartpoleMDP{E<:CartpoleEnvironment,F,R,T} <: MDPView{SVector{4,Float64},Float64}
     env::E
     actions::Vector{Float64}
+    discount::Float64
     statefun::F # maps environment state to mdp state
     rewardfun::R # maps envionment state plus action to reward
     isterminalfun::T
@@ -28,15 +29,16 @@ end
 function CartpoleMDP(;
         M = 1., m = 0.1, l = 1., com = l/2, dt = 2e-2,
         pos_limit = 2.4, angle_limit = deg2rad(12),
-        actions = [-10.,0.,10.],
+        actions = [-10.,0.,10.], discount = 0.99,
         statefun = cartpole_statefun,
         rewardfun = (mdp, s, a, envstate) -> 1,
         isterminalfun = cartpole_isterminalfun(pos_limit, angle_limit)
        )
     env = CartpoleEnvironment(M, m, l, com, (-pos_limit, pos_limit), dt)
-    CartpoleMDP(env, convert(Vector{Float64}, actions), statefun, rewardfun, isterminalfun)
+    CartpoleMDP(env, convert(Vector{Float64}, actions), Float64(discount), statefun, rewardfun, isterminalfun)
 end
 
+POMDPs.discount(mdp::CartpoleMDP) = mdp.discount
 POMDPs.actions(mdp::CartpoleMDP) = mdp.actions
 POMDPs.n_actions(mdp::CartpoleMDP) = length(mdp.actions)
 
