@@ -3,3 +3,4 @@ POMDPs
 RigidBodyDynamics
 StaticArrays
 RecipesBase
+ReinforcementLearning

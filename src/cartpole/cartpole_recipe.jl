@@ -11,23 +11,23 @@ function make_circle(cx, cy, r)
     collect(zip(x, y))
 end
 
-@recipe function plot(mdp::CartpoleMDP; force=0.)
-    env = mdp.env
-    xlims --> (env.xlimits[1], env.xlimits[2])
-    ylims --> env.pole_length .* (-1.2,1.2)
+@recipe function plot(env::CartpoleEnvironment; force=0.)
+    sim = env.sim
+    xlims --> (sim.xlimits[1], sim.xlimits[2])
+    ylims --> sim.pole_length .* (-1.2,1.2)
     ratio --> true
     xlabel --> "x [meter]"
     ylabel --> "y [meter]"
-    title --> @sprintf("Cartpole at t=%0.2f s", env.time)
-    min_force, max_force = extrema(mdp.actions)
-    cart_pos = configuration(env.state)[1]
+    title --> @sprintf("Cartpole at t=%0.2f s", sim.time)
+    min_force, max_force = extrema(env.actions)
+    cart_pos = configuration(sim.state)[1]
     cart_offset = -0.04
     cart_height = 0.1
     cart_width = 0.6
     arrow_height = cart_height / 2
     arrow_width_plus = 0.15 / max_force * force
     arrow_width_minus = 0.15 / min_force * force
-    pole_width = env.pole_com == env.pole_length ? 0.005 : 0.02
+    pole_width = sim.pole_com == sim.pole_length ? 0.005 : 0.02
     wheel_radius = 0.07
     wheel_offset = 0.2
     wheel_turns = (cart_pos+10) / (2pi * wheel_radius)
@@ -98,31 +98,31 @@ end
         label := ""
         wheel_x .+ cart_pos .+ wheel_offset, wheel_y .+ cart_offset .- cart_height
     end
-    p_bot_l = transform(env.state,
-            Point3D(frame_after(joints(env.mechansim)[3]), SVector(-pole_width,0,0.)),
-            default_frame(bodies(env.mechansim)[1])).v
-    p_bot_r = transform(env.state,
-            Point3D(frame_after(joints(env.mechansim)[3]), SVector(pole_width,0,0.)),
-            default_frame(bodies(env.mechansim)[1])).v
-    p_top_l = transform(env.state,
-            Point3D(frame_after(joints(env.mechansim)[3]), SVector{3}(-pole_width,0,env.pole_length)),
-            default_frame(bodies(env.mechansim)[1])).v
-    p_top_r = transform(env.state,
-            Point3D(frame_after(joints(env.mechansim)[3]), SVector{3}(pole_width,0,env.pole_length)),
-            default_frame(bodies(env.mechansim)[1])).v
+    p_bot_l = transform(sim.state,
+            Point3D(frame_after(joints(sim.mechansim)[3]), SVector(-pole_width,0,0.)),
+            default_frame(bodies(sim.mechansim)[1])).v
+    p_bot_r = transform(sim.state,
+            Point3D(frame_after(joints(sim.mechansim)[3]), SVector(pole_width,0,0.)),
+            default_frame(bodies(sim.mechansim)[1])).v
+    p_top_l = transform(sim.state,
+            Point3D(frame_after(joints(sim.mechansim)[3]), SVector{3}(-pole_width,0,sim.pole_length)),
+            default_frame(bodies(sim.mechansim)[1])).v
+    p_top_r = transform(sim.state,
+            Point3D(frame_after(joints(sim.mechansim)[3]), SVector{3}(pole_width,0,sim.pole_length)),
+            default_frame(bodies(sim.mechansim)[1])).v
     @series begin # pole itself
         seriescolor := :grey
         seriestype := :shape
         label := ""
         [p_bot_l[1],p_bot_r[1],p_top_r[1],p_top_l[1]], [p_bot_l[3],p_bot_r[3],p_top_r[3],p_top_l[3]]
     end
-    if env.pole_com == env.pole_length
-        p_bot_c = transform(env.state,
-            Point3D(frame_after(joints(env.mechansim)[3]), SVector(0,0,0.)),
-            default_frame(bodies(env.mechansim)[1])).v
-        p_top_c = transform(env.state,
-            Point3D(frame_after(joints(env.mechansim)[3]), SVector(0.,0,env.pole_length)),
-            default_frame(bodies(env.mechansim)[1])).v
+    if sim.pole_com == sim.pole_length
+        p_bot_c = transform(sim.state,
+            Point3D(frame_after(joints(sim.mechansim)[3]), SVector(0,0,0.)),
+            default_frame(bodies(sim.mechansim)[1])).v
+        p_top_c = transform(sim.state,
+            Point3D(frame_after(joints(sim.mechansim)[3]), SVector(0.,0,sim.pole_length)),
+            default_frame(bodies(sim.mechansim)[1])).v
         @series begin # sphere on top
             seriestype := :shape
             seriescolor := :grey
@@ -142,7 +142,7 @@ end
             linewidth := 1
             linestyle := :dash
             label := ""
-            [cart_pos, cart_pos], [cart_offset .- cart_height .- wheel_radius .- 0.05, env.pole_length]
+            [cart_pos, cart_pos], [cart_offset .- cart_height .- wheel_radius .- 0.05, sim.pole_length]
         end
         @series begin # x text
             seriescolor := :grey
