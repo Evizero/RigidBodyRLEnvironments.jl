@@ -105,7 +105,7 @@ function CartpoleSimulator(
     sim
 end
 
-function reset!(rng::AbstractRNG, sim::CartpoleSimulator, s0 = SVector(0.,0.,0.,0.))
+function reset!(sim::CartpoleSimulator, s0 = SVector(0.,0.,0.,0.))
     configuration(sim.state)[1] = Float64(s0[1])
     configuration(sim.state)[2] = Float64(s0[3])
     velocity(sim.state)[1] = Float64(s0[2])
@@ -116,7 +116,7 @@ function reset!(rng::AbstractRNG, sim::CartpoleSimulator, s0 = SVector(0.,0.,0.,
     sim.state
 end
 
-function step!(rng::AbstractRNG, sim::CartpoleSimulator, force::Number = 0.)
+function step!(sim::CartpoleSimulator, force::Number = 0.)
     steps = floor(Int, sim.dt / sim.simstep)
     for i in 1:steps
         @inbounds sim.torques[1] = Float64(force)

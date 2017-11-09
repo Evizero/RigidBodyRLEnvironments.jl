@@ -19,11 +19,6 @@ export
 
 abstract type RigidBodySimulator end
 
-step!(sim::RigidBodySimulator, args...) =
-    step!(Base.GLOBAL_RNG, sim, args...)
-reset!(sim::RigidBodySimulator, args...) =
-    reset!(Base.GLOBAL_RNG, sim, args...)
-
 include("utils.jl")
 include("cartpole/cartpole_sim.jl")
 include("cartpole/cartpole_env.jl")
